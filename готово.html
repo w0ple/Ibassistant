@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ibassistant — Бизнес на автопилоте</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Unbounded:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0f0f1a;
+    --surface: #13131f;
+    --border: rgba(255,255,255,0.07);
+    --accent: #4f7fff;
+    --accent2: #7c3aed;
+    --accent-glow: rgba(79,127,255,0.25);
+    --text: #e8e8f0;
+    --text-muted: #7a7a9a;
+    --white: #ffffff;
+    --gradient: linear-gradient(135deg, #4f7fff, #7c3aed);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 6vw;
+    height: 68px;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    transition: background .3s;
+  }
+  .logo {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.25rem; font-weight: 900;
+    background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { color: var(--text-muted); text-decoration: none; font-size: .875rem; font-weight: 500; transition: color .2s; }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta {
+    background: var(--gradient); color: #fff; border: none;
+    padding: .55rem 1.4rem; border-radius: 8px;
+    font-family: 'Manrope', sans-serif; font-size: .875rem; font-weight: 700;
+    cursor: pointer; transition: opacity .2s, transform .2s;
+    text-decoration: none;
+  }
+  .nav-cta:hover { opacity: .85; transform: translateY(-1px); }
+
+  /* hamburger */
+  .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .burger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: .3s; }
+
+  /* mobile menu */
+  .mobile-menu {
+    display: none; position: fixed; top: 68px; left: 0; right: 0; bottom: 0; z-index: 99;
+    background: var(--bg2); padding: 2rem 6vw; flex-direction: column; gap: 1.5rem;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a { color: var(--text); text-decoration: none; font-size: 1.1rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+  .mobile-menu .nav-cta { text-align: center; border-radius: 10px; padding: .8rem; font-size: 1rem; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 6vw 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(79,127,255,.12) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 50% at 30% 70%, rgba(124,58,237,.1) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 700px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: rgba(79,127,255,.12); border: 1px solid rgba(79,127,255,.3);
+    padding: .35rem .9rem; border-radius: 100px;
+    font-size: .78rem; font-weight: 600; color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .hero-badge::before { content: '●'; font-size: .5rem; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 4rem); font-weight: 900;
+    line-height: 1.1; margin-bottom: 1.5rem;
+    color: var(--white);
+  }
+  h1 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .hero-sub {
+    font-size: 1.1rem; color: var(--text-muted); line-height: 1.7;
+    max-width: 560px; margin-bottom: 2.5rem;
+  }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--gradient); color: #fff; border: none;
+    padding: .85rem 2rem; border-radius: 10px;
+    font-family: 'Manrope', sans-serif; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: opacity .2s, transform .2s, box-shadow .2s;
+    box-shadow: 0 0 30px var(--accent-glow);
+  }
+  .btn-primary:hover { opacity: .88; transform: translateY(-2px); box-shadow: 0 4px 40px var(--accent-glow); }
+  .btn-secondary {
+    background: transparent; color: var(--text); border: 1px solid var(--border);
+    padding: .85rem 2rem; border-radius: 10px;
+    font-family: 'Manrope', sans-serif; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: border-color .2s, color .2s;
+    text-decoration: none; display: inline-flex; align-items: center;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .hero-stats {
+    display: flex; gap: 3rem; margin-top: 4rem; flex-wrap: wrap;
+  }
+  .stat-num {
+    font-family: 'Unbounded', sans-serif; font-size: 2rem; font-weight: 900;
+    color: var(--white);
+  }
+  .stat-num span { color: var(--accent); }
+  .stat-label { font-size: .8rem; color: var(--text-muted); margin-top: .25rem; }
+
+  /* ── SECTIONS ── */
+  section { padding: 100px 6vw; }
+
+  .section-tag {
+    display: inline-block;
+    font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: .8rem;
+  }
+  h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.5rem); font-weight: 800;
+    color: var(--white); line-height: 1.2; margin-bottom: 1rem;
+  }
+  h2 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sec-sub { font-size: 1rem; color: var(--text-muted); max-width: 540px; line-height: 1.7; margin-bottom: 3.5rem; }
+
+  /* ── BENEFITS ── */
+  #benefits { background: var(--bg2); }
+  .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .benefit-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.8rem; transition: border-color .3s, transform .3s;
+  }
+  .benefit-card:hover { border-color: rgba(79,127,255,.4); transform: translateY(-4px); }
+  .benefit-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: rgba(79,127,255,.12); display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.2rem; font-size: 1.4rem;
+  }
+  .benefit-card h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: .5rem; }
+  .benefit-card p { font-size: .875rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── INDUSTRIES ── */
+  #industries {}
+  .industries-tabs { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+  .tab-btn {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+    padding: .5rem 1.2rem; border-radius: 100px; font-family: 'Manrope', sans-serif;
+    font-size: .85rem; font-weight: 600; cursor: pointer; transition: all .2s;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    background: rgba(79,127,255,.15); border-color: var(--accent); color: var(--accent);
+  }
+  .industry-panel { display: none; }
+  .industry-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .ind-content h3 { font-size: 1.5rem; font-weight: 800; color: var(--white); margin-bottom: 1rem; }
+  .ind-content p { color: var(--text-muted); line-height: 1.8; margin-bottom: 1.5rem; }
+  .ind-features { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
+  .ind-features li { display: flex; align-items: center; gap: .75rem; font-size: .9rem; color: var(--text); }
+  .ind-features li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .ind-visual {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
+    font-size: 5rem; position: relative; overflow: hidden;
+  }
+  .ind-visual::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(79,127,255,.08), transparent 70%);
+  }
+
+  /* ── SERVICES ── */
+  #services { background: var(--bg2); }
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+  .service-card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    padding: 2rem; position: relative; overflow: hidden; transition: border-color .3s, transform .3s;
+  }
+  .service-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--gradient); opacity: 0; transition: opacity .3s;
+  }
+  .service-card:hover { border-color: rgba(79,127,255,.3); transform: translateY(-4px); }
+  .service-card:hover::before { opacity: 1; }
+  .service-num {
+    font-family: 'Unbounded', sans-serif; font-size: 2.5rem; font-weight: 900;
+    color: rgba(79,127,255,.15); margin-bottom: 1.2rem; display: block;
+  }
+  .service-card h3 { font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: .75rem; }
+  .service-card p { font-size: .875rem; color: var(--text-muted); line-height: 1.7; }
+  .service-arrow {
+    display: inline-flex; align-items: center; gap: .4rem;
+    color: var(--accent); font-size: .85rem; font-weight: 600;
+    margin-top: 1.2rem; cursor: pointer; transition: gap .2s;
+  }
+  .service-arrow:hover { gap: .7rem; }
+
+  /* ── SOFTWARE ── */
+  #software { }
+  .software-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; }
+  .sw-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    padding: 2.5rem; transition: border-color .3s, transform .3s;
+  }
+  .sw-card:hover { border-color: rgba(79,127,255,.4); transform: translateY(-4px); }
+  .sw-logo { font-family: 'Unbounded', sans-serif; font-size: 1.4rem; font-weight: 900; color: var(--white); margin-bottom: .5rem; }
+  .sw-tagline { font-size: .8rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 1.2rem; }
+  .sw-card p { font-size: .9rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.5rem; }
+  .sw-features { list-style: none; display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.8rem; }
+  .sw-features li { font-size: .85rem; color: var(--text); display: flex; align-items: center; gap: .6rem; }
+  .sw-features li::before { content: '✓'; color: var(--accent); font-weight: 800; }
+
+  /* ── CLIENTS ── */
+  #clients { background: var(--bg2); }
+  .clients-track-wrap { overflow: hidden; }
+  .clients-track {
+    display: flex; gap: 2rem;
+    animation: scroll-clients 18s linear infinite;
+    width: max-content;
+  }
+  .clients-track:hover { animation-play-state: paused; }
+  @keyframes scroll-clients { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  .client-logo {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 2rem; white-space: nowrap;
+    font-weight: 700; font-size: .95rem; color: var(--text-muted);
+    transition: color .2s, border-color .2s;
+  }
+  .client-logo:hover { color: var(--white); border-color: rgba(79,127,255,.3); }
+
+  /* ── FAQ ── */
+  #faq {}
+  .faq-list { max-width: 720px; display: flex; flex-direction: column; gap: 1px; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-q {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.3rem 0; cursor: pointer;
+    font-weight: 600; font-size: 1rem; color: var(--white);
+    transition: color .2s;
+  }
+  .faq-q:hover { color: var(--accent); }
+  .faq-icon { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: .9rem; transition: transform .3s, background .3s; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); background: var(--accent); border-color: var(--accent); color: #fff; }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+  .faq-a p { padding-bottom: 1.2rem; color: var(--text-muted); line-height: 1.7; font-size: .95rem; }
+
+  /* ── CTA ── */
+  #cta {
+    background: var(--bg2);
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  #cta::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(79,127,255,.1), transparent 70%);
+  }
+  #cta .inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+  #cta h2 { margin-bottom: 1rem; }
+  #cta p { color: var(--text-muted); margin-bottom: 2rem; line-height: 1.7; }
+
+  /* ── CONTACT ── */
+  #contacts {}
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+  .contact-info h3 { font-size: 1.3rem; font-weight: 700; color: var(--white); margin-bottom: 2rem; }
+  .contact-detail { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+  .contact-detail-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(79,127,255,.12); border: 1px solid rgba(79,127,255,.2);
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+  }
+  .contact-detail-text small { display: block; font-size: .75rem; color: var(--text-muted); margin-bottom: .1rem; }
+  .contact-detail-text a, .contact-detail-text span {
+    font-weight: 600; color: var(--white); text-decoration: none; font-size: .95rem;
+  }
+  .socials { display: flex; gap: .75rem; margin-top: 2rem; }
+  .social-btn {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); text-decoration: none; font-size: 1rem;
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .social-btn:hover { background: rgba(79,127,255,.15); border-color: var(--accent); color: var(--accent); }
+
+  /* ── FORM ── */
+  .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; }
+  .form-card h3 { font-size: 1.2rem; font-weight: 700; color: var(--white); margin-bottom: .5rem; }
+  .form-card p { font-size: .875rem; color: var(--text-muted); margin-bottom: 1.8rem; }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-group label { display: block; font-size: .8rem; font-weight: 600; color: var(--text-muted); margin-bottom: .45rem; letter-spacing: .05em; text-transform: uppercase; }
+  .form-group input, .form-group select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: .8rem 1rem;
+    color: var(--white); font-family: 'Manrope', sans-serif; font-size: .95rem;
+    outline: none; transition: border-color .2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+  .form-group select option { background: var(--bg2); }
+  .form-submit {
+    width: 100%; background: var(--gradient); color: #fff; border: none;
+    padding: .95rem; border-radius: 10px;
+    font-family: 'Manrope', sans-serif; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: opacity .2s, transform .2s;
+    margin-top: .5rem;
+  }
+  .form-submit:hover { opacity: .88; transform: translateY(-1px); }
+  .form-success { display: none; text-align: center; padding: 2rem; }
+  .form-success .check { font-size: 3rem; margin-bottom: 1rem; }
+  .form-success h4 { color: var(--white); font-size: 1.2rem; margin-bottom: .5rem; }
+  .form-success p { color: var(--text-muted); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 6vw;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;
+  }
+  footer .logo { font-size: 1rem; }
+  .footer-links { display: flex; gap: 2rem; list-style: none; }
+  .footer-links a { color: var(--text-muted); text-decoration: none; font-size: .85rem; transition: color .2s; }
+  .footer-links a:hover { color: var(--white); }
+  .footer-copy { font-size: .8rem; color: var(--text-muted); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,.75); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center; padding: 1.5rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+    padding: 2.5rem; max-width: 480px; width: 100%; position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 1.2rem; right: 1.2rem;
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text-muted); font-size: 1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: color .2s;
+  }
+  .modal-close:hover { color: var(--white); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .nav-cta.desktop { display: none; }
+    .burger { display: flex; }
+    .industry-panel.active { grid-template-columns: 1fr; }
+    .ind-visual { display: none; }
+    .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .hero-stats { gap: 2rem; }
+  }
+
+  /* scroll reveal */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="logo">Ibassistant</a>
+  <ul class="nav-links">
+    <li><a href="#benefits">Преимущества</a></li>
+    <li><a href="#services">Услуги</a></li>
+    <li><a href="#software">ПО</a></li>
+    <li><a href="#clients">Клиенты</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contacts">Контакты</a></li>
+  </ul>
+  <a href="#contacts" class="nav-cta desktop">Оставить заявку</a>
+  <div class="burger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#benefits" onclick="closeMenu()">Преимущества</a>
+  <a href="#services" onclick="closeMenu()">Услуги</a>
+  <a href="#software" onclick="closeMenu()">ПО</a>
+  <a href="#clients" onclick="closeMenu()">Клиенты</a>
+  <a href="#faq" onclick="closeMenu()">FAQ</a>
+  <a href="#contacts" onclick="closeMenu()">Контакты</a>
+  <a href="#contacts" class="nav-cta" onclick="closeMenu()">Оставить заявку</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Автоматизация бизнеса в Казахстане</div>
+    <h1>Переведите бизнес<br>в режим <span>автопилота</span></h1>
+    <p class="hero-sub">Откажитесь от рутинных задач, снизьте операционные затраты и увеличьте прибыль. Эффект ощутим уже в первый месяц внедрения.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="openModal()">Оставить заявку</button>
+      <a href="#services" class="btn-secondary">Наши услуги →</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">200<span>+</span></div>
+        <div class="stat-label">Автоматизированных<br>компаний</div>
+      </div>
+      <div>
+        <div class="stat-num">30<span>%</span></div>
+        <div class="stat-label">Снижение<br>операционных затрат</div>
+      </div>
+      <div>
+        <div class="stat-num">1<span> мес.</span></div>
+        <div class="stat-label">До первого<br>результата</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section id="benefits">
+  <div class="reveal">
+    <div class="section-tag">Зачем автоматизировать</div>
+    <h2>Эффект от автоматизации<br><span>будет ощутим сразу</span></h2>
+    <p class="sec-sub">Управляйте бизнесом из любой точки мира, контролируйте показатели и увеличивайте скорость роста.</p>
+  </div>
+  <div class="benefits-grid">
+    <div class="benefit-card reveal">
+      <div class="benefit-icon">🌍</div>
+      <h3>Управление из любой точки мира</h3>
+      <p>Контролируйте все процессы через телефон или ноутбук — из офиса, дома или другой страны.</p>
+    </div>
+    <div class="benefit-card reveal">
+      <div class="benefit-icon">📊</div>
+      <h3>Контроль показателей и прибыли</h3>
+      <p>Автоматические отчёты в реальном времени. Вы всегда знаете, что происходит в компании.</p>
+    </div>
+    <div class="benefit-card reveal">
+      <div class="benefit-icon">⚡</div>
+      <h3>Высокая скорость масштабирования</h3>
+      <p>Открывайте новые точки и запускайте процессы без увеличения штата сотрудников.</p>
+    </div>
+    <div class="benefit-card reveal">
+      <div class="benefit-icon">🤝</div>
+      <h3>Качество обслуживания клиентов</h3>
+      <p>Быстрее обрабатывайте заказы, меньше ошибок, выше удовлетворённость покупателей.</p>
+    </div>
+    <div class="benefit-card reveal">
+      <div class="benefit-icon">📋</div>
+      <h3>Автоматические отчёты</h3>
+      <p>Забудьте об Excel-таблицах — система сама формирует нужные отчёты по расписанию.</p>
+    </div>
+    <div class="benefit-card reveal">
+      <div class="benefit-icon">🔒</div>
+      <h3>Повышение контроля</h3>
+      <p>Фиксируйте каждое действие сотрудников, минимизируйте злоупотребления и потери.</p>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRIES -->
+<section id="industries">
+  <div class="reveal">
+    <div class="section-tag">Отрасли</div>
+    <h2>Автоматизируем <span>любой бизнес</span></h2>
+    <p class="sec-sub">Работаем с разными сферами — от торговли до сельского хозяйства.</p>
+  </div>
+  <div class="industries-tabs reveal">
+    <button class="tab-btn active" onclick="showTab('trade')">🛒 Торговля</button>
+    <button class="tab-btn" onclick="showTab('production')">🏭 Производство</button>
+    <button class="tab-btn" onclick="showTab('hotel')">🏨 Гостиничный бизнес</button>
+    <button class="tab-btn" onclick="showTab('restaurant')">🍽️ Рестораны</button>
+    <button class="tab-btn" onclick="showTab('agro')">🌾 Сельское хозяйство</button>
+    <button class="tab-btn" onclick="showTab('build')">🏗️ Строительство</button>
+  </div>
+
+  <div id="tab-trade" class="industry-panel active">
+    <div class="ind-content">
+      <h3>Автоматизация торговли</h3>
+      <p>Внедрите современную систему учёта товаров, управляйте остатками, ценами и закупками в единой системе.</p>
+      <ul class="ind-features">
+        <li>Учёт товаров и остатков в реальном времени</li>
+        <li>Автоматические заказы поставщикам</li>
+        <li>Программа лояльности и CRM</li>
+        <li>Управление несколькими точками</li>
+        <li>Интеграция с онлайн-кассой</li>
+      </ul>
+    </div>
+    <div class="ind-visual">🛒</div>
+  </div>
+  <div id="tab-production" class="industry-panel">
+    <div class="ind-content">
+      <h3>Автоматизация производства</h3>
+      <p>Контролируйте весь производственный цикл — от сырья до готовой продукции — в одной системе.</p>
+      <ul class="ind-features">
+        <li>Учёт сырья и готовой продукции</li>
+        <li>Контроль производственных процессов</li>
+        <li>Управление заказами и отгрузками</li>
+        <li>Интеграция со складом</li>
+        <li>Аналитика и отчётность</li>
+      </ul>
+    </div>
+    <div class="ind-visual">🏭</div>
+  </div>
+  <div id="tab-hotel" class="industry-panel">
+    <div class="ind-content">
+      <h3>Автоматизация гостиниц</h3>
+      <p>Управляйте бронированиями, номерным фондом и персоналом через единую систему.</p>
+      <ul class="ind-features">
+        <li>Онлайн-бронирование номеров</li>
+        <li>Управление загруженностью</li>
+        <li>Учёт дополнительных услуг</li>
+        <li>Контроль персонала</li>
+        <li>Интеграция с OTA-платформами</li>
+      </ul>
+    </div>
+    <div class="ind-visual">🏨</div>
+  </div>
+  <div id="tab-restaurant" class="industry-panel">
+    <div class="ind-content">
+      <h3>Автоматизация ресторанов</h3>
+      <p>Ускорьте обслуживание, снизьте потери и управляйте меню, кухней и персоналом легко.</p>
+      <ul class="ind-features">
+        <li>Автоматизация зала и кухни</li>
+        <li>Управление меню и ценами</li>
+        <li>Учёт блюд и ингредиентов</li>
+        <li>Программы лояльности</li>
+        <li>Онлайн-доставка и интеграция с агрегаторами</li>
+      </ul>
+    </div>
+    <div class="ind-visual">🍽️</div>
+  </div>
+  <div id="tab-agro" class="industry-panel">
+    <div class="ind-content">
+      <h3>Автоматизация сельского хозяйства</h3>
+      <p>Ведите учёт урожая, техники, склада и финансов в единой системе управления АПК.</p>
+      <ul class="ind-features">
+        <li>Учёт земельных участков и культур</li>
+        <li>Управление техникой и ресурсами</li>
+        <li>Складской учёт зерна и продукции</li>
+        <li>Финансовый учёт и отчётность</li>
+        <li>Контроль сотрудников и задач</li>
+      </ul>
+    </div>
+    <div class="ind-visual">🌾</div>
+  </div>
+  <div id="tab-build" class="industry-panel">
+    <div class="ind-content">
+      <h3>Автоматизация строительства</h3>
+      <p>Управляйте проектами, материалами, подрядчиками и финансами строительных объектов.</p>
+      <ul class="ind-features">
+        <li>Управление проектами и объектами</li>
+        <li>Учёт материалов и поставщиков</li>
+        <li>Контроль бюджета и смет</li>
+        <li>Документооборот и согласования</li>
+        <li>Контроль сроков и задач</li>
+      </ul>
+    </div>
+    <div class="ind-visual">🏗️</div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="reveal">
+    <div class="section-tag">Что мы делаем</div>
+    <h2>Наши <span>услуги</span></h2>
+    <p class="sec-sub">Полный цикл — от анализа бизнеса до запуска и поддержки системы автоматизации.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <span class="service-num">01</span>
+      <h3>Внедрение систем учёта</h3>
+      <p>Настройка и запуск систем товарного учёта, кассовых решений и ERP под ваш бизнес.</p>
+      <div class="service-arrow">Подробнее →</div>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-num">02</span>
+      <h3>CRM и автоматизация продаж</h3>
+      <p>Внедрение Bitrix24 и других CRM-систем: воронки, задачи, автоматические рассылки и аналитика.</p>
+      <div class="service-arrow">Подробнее →</div>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-num">03</span>
+      <h3>Интеграция и настройка ПО</h3>
+      <p>Интегрируем системы между собой: 1С, iiko, Rosta, онлайн-кассы, банки и мессенджеры.</p>
+      <div class="service-arrow">Подробнее →</div>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-num">04</span>
+      <h3>Обучение персонала</h3>
+      <p>Проводим обучение сотрудников работе с новыми системами — лично или онлайн.</p>
+      <div class="service-arrow">Подробнее →</div>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-num">05</span>
+      <h3>Техническая поддержка</h3>
+      <p>Оперативная поддержка 24/7, обновления и доработка системы под нужды бизнеса.</p>
+      <div class="service-arrow">Подробнее →</div>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-num">06</span>
+      <h3>Поставка оборудования</h3>
+      <p>Кассы, сканеры, весовое оборудование, мониторы для кухни — полный комплект для автоматизации.</p>
+      <div class="service-arrow">Подробнее →</div>
+    </div>
+  </div>
+</section>
+
+<!-- SOFTWARE -->
+<section id="software">
+  <div class="reveal">
+    <div class="section-tag">Программное обеспечение</div>
+    <h2>Лучшие <span>решения</span> для вашего бизнеса</h2>
+    <p class="sec-sub">Работаем с проверенными платформами — внедряем, настраиваем и сопровождаем.</p>
+  </div>
+  <div class="software-grid">
+    <div class="sw-card reveal">
+      <div class="sw-logo">Bitrix24</div>
+      <div class="sw-tagline">CRM · Задачи · Автоматизация</div>
+      <p>Единое пространство для управления бизнесом: CRM, задачи, документооборот, автоматизация рабочих процессов без программирования.</p>
+      <ul class="sw-features">
+        <li>Управление продажами и воронками</li>
+        <li>Автоматизация задач и согласований</li>
+        <li>Корпоративный портал и чат</li>
+        <li>Телефония и рассылки</li>
+      </ul>
+      <button class="btn-primary" onclick="openModal()">Подключить</button>
+    </div>
+    <div class="sw-card reveal">
+      <div class="sw-logo">iiko</div>
+      <div class="sw-tagline">Рестораны · Кафе · Доставка</div>
+      <p>Ведущая система автоматизации для общепита: управление залом, кухней, складом и доставкой в одном решении.</p>
+      <ul class="sw-features">
+        <li>Система заказов и кухонный экран</li>
+        <li>Складской и финансовый учёт</li>
+        <li>Программа лояльности</li>
+        <li>Интеграция с агрегаторами доставки</li>
+      </ul>
+      <button class="btn-primary" onclick="openModal()">Подключить</button>
+    </div>
+    <div class="sw-card reveal">
+      <div class="sw-logo">Rosta</div>
+      <div class="sw-tagline">Торговля · Склад · Аналитика</div>
+      <p>Современная система учёта для магазинов, кафе и ресторанов — быстрый старт и удобный интерфейс.</p>
+      <ul class="sw-features">
+        <li>Учёт товаров и остатков</li>
+        <li>Онлайн-касса и фискализация</li>
+        <li>Управление сетью торговых точек</li>
+        <li>Аналитика продаж в реальном времени</li>
+      </ul>
+      <button class="btn-primary" onclick="openModal()">Подключить</button>
+    </div>
+  </div>
+</section>
+
+<!-- CLIENTS -->
+<section id="clients">
+  <div class="reveal" style="text-align:center; margin-bottom: 3rem;">
+    <div class="section-tag">Нашим клиентам доверяют</div>
+    <h2>Наши <span>клиенты</span></h2>
+  </div>
+  <div class="clients-track-wrap reveal">
+    <div class="clients-track">
+      <div class="client-logo">Myata Lounge</div>
+      <div class="client-logo">Urbo Kitchen</div>
+      <div class="client-logo">GoSushi</div>
+      <div class="client-logo">Vanilla Café</div>
+      <div class="client-logo">Грузинский Двор</div>
+      <div class="client-logo">Lagman Town</div>
+      <div class="client-logo">Arafat Market</div>
+      <div class="client-logo">Comfort Pro</div>
+      <div class="client-logo">AgroStyle KZ</div>
+      <div class="client-logo">BuildMaster</div>
+      <!-- duplicate for seamless loop -->
+      <div class="client-logo">Myata Lounge</div>
+      <div class="client-logo">Urbo Kitchen</div>
+      <div class="client-logo">GoSushi</div>
+      <div class="client-logo">Vanilla Café</div>
+      <div class="client-logo">Грузинский Двор</div>
+      <div class="client-logo">Lagman Town</div>
+      <div class="client-logo">Arafat Market</div>
+      <div class="client-logo">Comfort Pro</div>
+      <div class="client-logo">AgroStyle KZ</div>
+      <div class="client-logo">BuildMaster</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="reveal">
+    <div class="section-tag">Вопросы и ответы</div>
+    <h2>Часто задаваемые <span>вопросы</span></h2>
+  </div>
+  <div class="faq-list reveal">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>Какие преимущества даёт автоматизация бизнес-процессов?</span>
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><p>Автоматизация снижает операционные затраты на 20–40%, освобождает сотрудников от рутины, уменьшает количество ошибок и даёт руководителю полную картину бизнеса в реальном времени. Эффект заметен уже в первый месяц внедрения.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>Какие бизнес-процессы вы можете автоматизировать?</span>
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><p>Мы автоматизируем складской и товарный учёт, управление продажами и CRM, документооборот, финансовую отчётность, работу с клиентами, производственные процессы, HR и многое другое.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>В каких сферах вы работаете?</span>
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><p>Торговля, производство, гостиничный и ресторанный бизнес, сельское хозяйство, строительство. Если ваша сфера не указана — свяжитесь с нами, найдём решение под ваши задачи.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>Как долго длится внедрение системы?</span>
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><p>Сроки зависят от масштаба бизнеса и сложности процессов. Базовое внедрение занимает 2–4 недели. Более сложные проекты — от 1 до 3 месяцев. Мы всегда составляем реалистичный план и придерживаемся сроков.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>Какую поддержку вы оказываете после внедрения?</span>
+        <div class="faq-icon">+</div>
+      </div>
+      <div class="faq-a"><p>Мы предоставляем техническую поддержку, регулярные обновления и консультации. Ваши сотрудники могут обратиться к нам в рабочее время, а критические вопросы решаются в режиме 24/7.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="inner reveal">
+    <div class="section-tag">Начать сейчас</div>
+    <h2>Готовы перевести<br>бизнес на <span>автопилот?</span></h2>
+    <p>Оставьте заявку — наш менеджер свяжется с вами, проведёт бесплатный аудит и предложит оптимальное решение.</p>
+    <button class="btn-primary" onclick="openModal()">Оставить заявку бесплатно</button>
+  </div>
+</section>
+
+<!-- CONTACTS -->
+<section id="contacts">
+  <div class="contact-grid">
+    <div class="contact-info reveal">
+      <div class="section-tag">Контакты</div>
+      <h2>Свяжитесь<br>с <span>нами</span></h2>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📞</div>
+        <div class="contact-detail-text">
+          <small>Телефон</small>
+          <a href="tel:+77760626272">+7 776 062 6272</a>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">✉️</div>
+        <div class="contact-detail-text">
+          <small>Email</small>
+          <a href="mailto:info@bizauto.kz">info@bizauto.kz</a>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📍</div>
+        <div class="contact-detail-text">
+          <small>Адрес</small>
+          <span>Алматы, Казахстан</span>
+        </div>
+      </div>
+      <div class="socials">
+        <a href="https://wa.me/77760626272" target="_blank" class="social-btn" title="WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="22" height="22"><path fill="#25D366" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-23.1-115-65.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></a>
+        <a href="https://www.instagram.com/ibassistant/" target="_blank" class="social-btn" title="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="22" height="22"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#feda75"/><stop offset="25%" style="stop-color:#fa7e1e"/><stop offset="50%" style="stop-color:#d62976"/><stop offset="75%" style="stop-color:#962fbf"/><stop offset="100%" style="stop-color:#4f5bd5"/></linearGradient></defs><path fill="url(#ig)" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg></a>
+        <a href="https://www.tiktok.com/@ibassistankz?_r=1&_t=ZS-96ybaAQ1fAj" target="_blank" class="social-btn" title="TikTok"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="22" height="22"><path fill="#ffffff" d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.18V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14z"/></svg></a>
+      </div>
+    </div>
+    <div class="form-card reveal" id="contactForm">
+      <h3>Оставить заявку</h3>
+      <p>Заполните форму — ответим в течение 15 минут</p>
+      <div id="formFields">
+        <div class="form-group">
+          <label>Ваше имя</label>
+          <input type="text" placeholder="Иван Иванов">
+        </div>
+        <div class="form-group">
+          <label>Телефон</label>
+          <input type="tel" placeholder="+7 (___) ___-__-__">
+        </div>
+        <div class="form-group">
+          <label>Сфера ИТ</label>
+          <select>
+            <option value="" disabled selected>Выберите сферу ИТ</option>
+            <option>Разработка сайтов</option>
+            <option>Разработка мобильных приложений</option>
+            <option>Автоматизация бизнес-процессов</option>
+            <option>CRM / ERP системы</option>
+            <option>IT-консалтинг</option>
+            <option>Кибербезопасность</option>
+            <option>Облачные решения</option>
+            <option>Другое</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Примечание <span style="color:var(--text-muted);font-weight:400;text-transform:none">(до 40 символов)</span></label>
+          <input type="text" id="contactNote" placeholder="Ваш комментарий..." maxlength="40" oninput="updateCounter(this,'contactNoteCount')">
+          <div style="text-align:right;font-size:.75rem;color:var(--text-muted);margin-top:.3rem"><span id="contactNoteCount">0</span>/40</div>
+        </div>
+        <button class="form-submit" onclick="submitForm('contactForm')">Отправить заявку</button>
+      </div>
+      <div class="form-success" id="contactFormSuccess">
+        <div class="check">✅</div>
+        <h4>Заявка отправлена!</h4>
+        <p>Менеджер свяжется с вами в течение 15 минут.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#hero" class="logo">Ibassistant</a>
+  <ul class="footer-links">
+    <li><a href="#services">Услуги</a></li>
+    <li><a href="#software">ПО</a></li>
+    <li><a href="#clients">Клиенты</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contacts">Контакты</a></li>
+  </ul>
+  <div class="footer-copy">© 2024 Ibassistant. Все права защищены. &nbsp;<a href="setup-telegram.html" style="color:rgba(255,255,255,0.15);font-size:.7rem;text-decoration:none" title="Настройка Telegram">⚙</a></div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 style="font-size:1.3rem;font-weight:800;color:var(--white);margin-bottom:.4rem">Оставить заявку</h3>
+    <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:1.8rem">Ответим в течение 15 минут</p>
+    <div id="modalFormFields">
+      <div class="form-group">
+        <label>Ваше имя</label>
+        <input type="text" placeholder="Иван Иванов">
+      </div>
+      <div class="form-group">
+        <label>Телефон</label>
+        <input type="tel" placeholder="+7 (___) ___-__-__">
+      </div>
+      <div class="form-group">
+        <label>Сфера ИТ</label>
+        <select>
+          <option value="" disabled selected>Выберите сферу ИТ</option>
+          <option>Разработка сайтов</option>
+          <option>Разработка мобильных приложений</option>
+          <option>Автоматизация бизнес-процессов</option>
+          <option>CRM / ERP системы</option>
+          <option>IT-консалтинг</option>
+          <option>Кибербезопасность</option>
+          <option>Облачные решения</option>
+          <option>Другое</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Примечание <span style="color:var(--text-muted);font-weight:400;text-transform:none">(до 40 символов)</span></label>
+        <input type="text" id="modalNote" placeholder="Ваш комментарий..." maxlength="40" oninput="updateCounter(this,'modalNoteCount')">
+        <div style="text-align:right;font-size:.75rem;color:var(--text-muted);margin-top:.3rem"><span id="modalNoteCount">0</span>/40</div>
+      </div>
+      <button class="form-submit" onclick="submitForm('modal')">Отправить заявку</button>
+    </div>
+    <div class="form-success" id="modalFormSuccess">
+      <div class="check">✅</div>
+      <h4>Заявка отправлена!</h4>
+      <p>Менеджер свяжется с вами в течение 15 минут.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── CONFIG ──
+  const TG_TOKEN = '8763242999:AAF26heBoG9y8vkmDogIz-k2aRa2cCJ2VhY';
+  const TG_CHAT_ID = 5802553406;
+
+  // ── Telegram отправка ──
+  async function sendToTelegram(name, phone, sphere, note) {
+
+    const text = `🆕 <b>Новая заявка — Ibassistant</b>\n\n` +
+      `👤 <b>Имя:</b> ${name}\n` +
+      `📞 <b>Телефон:</b> ${phone}\n` +
+      `💻 <b>Сфера ИТ:</b> ${sphere}\n` +
+      `📝 <b>Примечание:</b> ${note || '—'}`;
+
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        console.log('✅ Заявка отправлена в Telegram');
+      } else {
+        console.error('❌ Telegram error:', data);
+      }
+      return data.ok;
+    } catch (e) {
+      console.error('Telegram fetch error:', e);
+      return false;
+    }
+  }
+
+  // ── Counter для примечания ──
+  function updateCounter(input, counterId) {
+    document.getElementById(counterId).textContent = input.value.length;
+  }
+
+  // ── Mobile menu ──
+  function toggleMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  }
+  function closeMenu() {
+    document.getElementById('mobileMenu').classList.remove('open');
+  }
+
+  // ── Modal ──
+  function openModal() {
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+
+  // ── Industry tabs ──
+  function showTab(id) {
+    document.querySelectorAll('.industry-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // ── FAQ ──
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const answer = item.querySelector('.faq-a');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('.faq-a').style.maxHeight = '0';
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      answer.style.maxHeight = answer.scrollHeight + 'px';
+    }
+  }
+
+  // ── Form submit ──
+  async function submitForm(context) {
+    let name, phone, sphere, note, btn;
+
+    if (context === 'modal') {
+      const fields = document.getElementById('modalFormFields');
+      const inputs = fields.querySelectorAll('input, select');
+      name   = inputs[0].value.trim();
+      phone  = inputs[1].value.trim();
+      sphere = inputs[2].value;
+      note   = (document.getElementById('modalNote') || {}).value || '';
+      btn    = fields.querySelector('.form-submit');
+    } else {
+      const fields = document.getElementById('formFields');
+      const inputs = fields.querySelectorAll('input, select');
+      name   = inputs[0].value.trim();
+      phone  = inputs[1].value.trim();
+      sphere = inputs[2].value;
+      note   = (document.getElementById('contactNote') || {}).value || '';
+      btn    = fields.querySelector('.form-submit');
+    }
+
+    if (!name || !phone || !sphere) {
+      alert('Пожалуйста, заполните все обязательные поля.');
+      return;
+    }
+
+    if (btn) { btn.textContent = 'Отправка...'; btn.disabled = true; }
+
+    const ok = await sendToTelegram(name, phone, sphere, note);
+
+    if (context === 'modal') {
+      document.getElementById('modalFormFields').style.display = 'none';
+      document.getElementById('modalFormSuccess').style.display = 'block';
+    } else {
+      document.getElementById('formFields').style.display = 'none';
+      document.getElementById('contactFormSuccess').style.display = 'block';
+    }
+
+    if (!ok) console.warn('Заявка отображена, но Telegram не настроен. Укажите TG_TOKEN и TG_CHAT_ID.');
+  }
+
+  // ── Scroll reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
